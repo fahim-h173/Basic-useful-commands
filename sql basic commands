@@ -1,0 +1,20 @@
+ALTER DATABASE - modifies a database
+ALTER TABLE - modifies a table
+CREATE DATABASE - creates a new database
+CREATE INDEX - create an index (search key)
+CREATE TABLE - create a table 
+DELETE - deletes data from database
+DROP INDEX - deletes an index
+DROP TABLE - deletes a table
+INSERT INTO - inserts new data into a database
+SELECT - exracts data from a database
+UPDATE - updates data in a database
+
+use sql_store;
+SELECT 
+	first_name, 
+    last_name,
+    points,
+    points+10,
+    (points+10)*2 AS 'Discount Price'
+FROM customers;

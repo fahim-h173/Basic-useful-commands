@@ -1,0 +1,9 @@
+*mysql
+sudo service mysql status
+sudo service mysql start
+sudo service mysql stop
+
+*xampp
+sudo /opt/lampp/lampp start
+sudo /opt/lampp/lampp stop
+sudo /opt/lampp/lampp restart
