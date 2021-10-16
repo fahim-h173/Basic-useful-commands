@@ -101,18 +101,30 @@ SELECT *,quantity* unit_price AS total_price FROM order_items WHERE order_id=2 O
 -- The limit oparetor
 
 SELECT * FROM customers LIMIT 3; -- for limited result
+SELECT * FROM customers LIMIT 5,2; -- the first number for skip rows and the second number is for showing rows
+
+-- exercies : find top 3 most loyal customar
+
+SELECT * FROM customers ORDER BY points DESC LIMIT 3;
+
+-- the structure is 
+
+SELECT * FROM customers WHERE ORDER BY points DESC LIMIT 3;
+
+-- inner joins and join [on means condition in join]
+
+SELECT * FROM orders JOIN customers ON orders.customer_id=customers.customer_id;
+
+SELECT order_id,first_name,last_name,orders.customer_id FROM orders JOIN customers ON orders.customer_id=customers.customer_id; -- manual column
+
+SELECT * FROM order_items JOIN products ON order_items.product_id = products.product_id;
+
+SELECT order_id,order_items.product_id,quantity,order_items.unit_price FROM order_items JOIN products ON order_items.product_id = products.product_id;
 
 
+-- joing across databases
 
-
-
-
-
-
-
-
-
-
+ SELECT * FROM order_items JOIN sql_inventory.products ON order_items.order_id=products.product_id;
 
 
 
