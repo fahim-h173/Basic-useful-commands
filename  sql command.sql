@@ -127,6 +127,155 @@ SELECT order_id,order_items.product_id,quantity,order_items.unit_price FROM orde
  SELECT * FROM order_items JOIN sql_inventory.products ON order_items.order_id=products.product_id;
 
 
+USE sql_inventory;
+ 
+ SELECT * FROM sql_store.order_items oi JOIN products p ON oi.product_id=p.product_id;
+
+-- self joins
+
+USE sql_hr;
+
+SELECT * FROM employees e JOIN employees m ON e.reports_to = m.employee_id
+
+USE sql_hr;
+
+SELECT e.employee_id,
+	   e.first_name,
+       m.first_name AS manager
+FROM employees e JOIN employees m ON e.reports_to = m.employee_id; -- manual column
+
+
+-- joining multiple table
+
+USE sql_store;
+
+USE sql_store;
+
+SELECT *
+       os.name AS status
+		FROM orders o JOIN customers c ON o.customer_id=c.customer_id
+		JOIN order_statuses os ON o.status=os.order_status_id; -- all column
+
+SELECT o.order_id,
+	   o.order_date,
+       c.first_name,
+       c.last_name,
+       os.name AS status
+		FROM orders o JOIN customers c ON o.customer_id=c.customer_id
+		JOIN order_statuses os ON o.status=os.order_status_id; -- manual column
+
+
+-- excercise 
+USE sql_invoicing;
+
+SELECT p.date,
+	   p.invoice_id,
+       p.amount,
+       c.name,
+       pm.name
+       FROM payments p JOIN clients c ON p.client_id=c.client_id
+		JOIN payment_methods pm ON p.payment_method=pm.payment_method_id;
+
+
+
+-- compound join condition
+
+SELECT * FROM order_items oi JOIN order_item_notes oin ON oi.order_id = oin.order_Id AND oi.product_id=oin.product_id;
+
+-- implicit join syntax
+
+SELECT * FROM orders o , customers c WHERE o.customer_id = c.customer_id; -- awar of for this joing instate, use belew query
+SELECT * FROM orders o JOIN customers c ON o.customer_id = c.customer_id;
+
+
+-- outer join
+
+SELECT 
+		c.customer_id,
+        c.first_name,
+        o.order_id
+        FROM customers c JOIN orders o ON c.customer_id = o.customer_id
+        	ORDER BY c.customer_id; -- it does't show any customers who don't have any order;
+
+-- in sql we have left join and right join
+
+
+SELECT 
+		c.customer_id,
+        c.first_name,
+        o.order_id
+        FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id
+        	ORDER BY c.customer_id; -- it will show all the customers from the left (customers) table records and the 'Right' join will show all the records from the right table(orders) also it'll show all the customers and orders
+
+SELECT 
+		c.customer_id,
+        c.first_name,
+        o.order_id
+        FROM customers c RIGHT JOIN orders o ON c.customer_id = o.customer_id
+        	ORDER BY c.customer_id; -- it will show all the records from right table (orders). it will show all the orders not all the customers.
+
+
+-- excercise with order and outer join
+SELECT p.product_id,
+	   p.name,
+       oi.quantity
+       FROM products p LEFT JOIN order_items oi ON p.product_id = oi.product_id;--  it will show all result from the left table whether the condition is true or not we can see stil see the result
+
+-- outer join between multiple table 
+
+SELECT 
+		c.customer_id,
+        c.first_name,
+        o.order_id
+        FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id
+        	JOIN shippers sh ON o.shipper_id = sh.shipper_id
+        	ORDER BY c.customer_id; -- the result will show only the records which have shipper_id;
+
+
+SELECT 
+		c.customer_id,
+        c.first_name,
+        o.order_id
+        FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id
+        	LEFT JOIN shippers sh ON o.shipper_id = sh.shipper_id
+        	ORDER BY c.customer_id; -- NOW we can see the order without shipper id;
+
+
+SELECT 
+		c.customer_id,
+        c.first_name,
+        o.order_id,
+        sh.name as shipper
+        FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id
+        	LEFT JOIN shippers sh ON o.shipper_id = sh.shipper_id
+        	ORDER BY c.customer_id; -- sh.name to shipper column added;
+
+-- excercise for this query
+
+SELECT 
+		c.customer_id,
+        c.first_name AS customer,
+        o.order_id,
+        o.order_date,
+        sh.name as shipper
+        FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id
+        	LEFT JOIN shippers sh ON o.shipper_id = sh.shipper_id
+        	ORDER BY c.customer_id;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
