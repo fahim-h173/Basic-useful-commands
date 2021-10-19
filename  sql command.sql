@@ -1,5 +1,11 @@
 use sql_store;
  -- select clause
+
+SELECT first_name, last_name, points, points + 10 FROM customers;
+
+
+
+
 SELECT 
 	first_name, 
     last_name,
@@ -254,24 +260,254 @@ SELECT
 
 SELECT 
 		c.customer_id,
-        c.first_name AS customer,
+        
         o.order_id,
         o.order_date,
-        sh.name as shipper
+        sh.name as shipper,
+        c.first_name AS customer,
+        os.name AS STATUS
         FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id
         	LEFT JOIN shippers sh ON o.shipper_id = sh.shipper_id
+            JOIN order_statuses os ON o.status=os.order_status_id
         	ORDER BY c.customer_id;
 
 
 
+-- selt outer join
+ USE sql_hr;
+SELECT  e.employee_id,
+		e.first_name,
+        m.first_name AS manager
+		FROM employees e LEFT JOIN employees m ON e.reports_to = m.employee_id 
+
+
+-- USING Operator
+
+ USE sql_hr;
+SELECT  e.employee_id,
+		e.first_name,
+        m.first_name AS manager
+		FROM employees e LEFT JOIN employees m ON e.reports_to = m.employee_id -- we can use USING operator instade of (ON e.reports_to = m.employee_id) if the culumn name is equal 
+
+
+-- excercise 
+USE sql_invoicing;
+SELECT * FROM payments p JOIN clients c USING (client_id)
+		JOIN payment_methods pm
+        ON p.payment_method=pm.payment_method_id; -- for all column;
+
+USE sql_invoicing;
+SELECT 
+		p.date,
+        c.name AS client,
+        p.amount,
+        pm.name as payment_method
+        FROM payments p JOIN clients c USING (client_id)
+		JOIN payment_methods pm
+        ON p.payment_method=pm.payment_method_id; -- for indibisual column
+
+-- *natural join
+
+SELECT * FROM orders o NATURAL JOIN customers c; -- it will join common column some times it could show unexpected result;
+
+-- *cross join
+
+SELECT c.first_name AS customer,
+		p.name as product
+        FROM customers c CROSS JOIN products p
+        ORDER BY c.first_name;
+
+-- *cross join 'implicit syntex'
+
+SELECT sh.name AS shipper,
+		p.name AS product 
+		FROM shippers sh, products p ORDER BY sh.name;
+
+-- *cross join explicit syntex
+
+SELECT sh.name AS shipper,
+		p.name AS product 
+		FROM shippers sh CROSS JOIN products p ORDER BY sh.name;
+
+
+-- *** UNION We can join multiple rows in sql
+
+SELECT order_id,
+		order_date,
+        'Active'as status 
+        FROM orders WHERE order_date >='2019-01-01'
+ UNION      
+SELECT order_id,
+		order_date,
+        'Archived'as status 
+        FROM orders WHERE order_date <='2019-01-01'
+
+-- we have to maintain the column number
+
+SELECT first_name FROM customers 
+UNION 
+SELECT name FROM shippers
+
+-- union excercise
+
+SELECT customer_id,first_name,points,'Bronze' AS type FROM customers WHERE points <= 2000
+UNION
+SELECT customer_id,first_name,points,'Silver' AS type FROM customers WHERE points >2000
+UNION
+SELECT customer_id,first_name,points,'Golden' AS type FROM customers WHERE points > 3000 ORDER BY customer_id; -- finaly we have done an amazing job by listing rows and marks our customers;
+
+-- *** column Atrribute [now we have to learn ho to insert data , update and remove]
+
+
+INSERT INTO customers VALUE(DEFAULT,
+						'Muhammad',
+                        'Fahim',
+                        '1998-04-01',
+                        '+880-1518-399106',
+                        'address',
+                        'city',
+                        'BD',DEFAULT);
+
+INSERT INTO customers(  customer_id,
+                        first_name,
+                        last_name,
+                        birth_date,
+                        phone,
+                        address,
+                        city,
+                        state,
+                        points
+                        ) VALUE(DEFAULT,
+						'Muhammad',
+                        'Fahim',
+                        '1998-04-01',
+                        '+880-1518-399106',
+                        'address',
+                        'city',
+                        'BD',DEFAULT)
 
 
 
+-- ** inserting multiple rows
+
+-- ** inserting hierarchical rows [inserting data to multiple table]
+
+INSERT INTO orders (customer_id,order_date,status) 
+				VALUES(1,'2019-01-02',DEFAULT);
+                
+                
+INSERT INTO order_items VALUES (LAST_INSERT_ID(),1,10,3.85) 
 
 
+INSERT INTO orders (customer_id,order_date,status) 
+				VALUES(1,'2019-01-02',DEFAULT);
+                
+                
+INSERT INTO order_items VALUES (LAST_INSERT_ID(),1,10,3.85)
+								
+
+-- * CREATING copy of a data in sql
+
+CREATE TABLE order_archived AS SELECT * FROM orders;
 
 
+-- we can also copy specipic data to other table
 
+
+INSERT INTO order_archived
+
+SELECT * FROM orders WHERE order_date <'2019-01-01' 
+
+
+USE sql_invoicing;
+CREATE TABLE invoices_archived AS
+SELECT i.client_id,
+	   i.number,
+       c.name AS client,
+       i.invoice_total,
+       i.payment_total,
+       i.invoice_date,
+       i.payment_date,
+       i.due_date
+
+		FROM invoices i JOIN clients c USING (client_id)
+			WHERE payment_date IS NOT NULL; 
+
+-- *** update data in sql
+
+ -- update data in a single row
+
+UPDATE invoices SET payment_total = 10,payment_date='2019-03-02'
+		WHERE invoice_id=3  -- WHERE invoice_id=3 it means we are going to change number 2 row.
+
+UPDATE invoices SET payment_total = DEFAULT,payment_date=DEFAULT
+		WHERE invoice_id=3;-- if we have to return it's default value
+
+ -- if a customer pay 50% 
+
+USE sql_invoicing;
+UPDATE invoices SET payment_total = invoice_total * 0.5,payment_date = due_date
+		WHERE client_id=4
+
+-- updating multiple rows
+
+UPDATE invoices SET payment_total = DEFAULT,payment_date=DEFAULT
+		WHERE client_id=3 -- it will update all records where sql found the same client_id number
+
+
+UPDATE invoices SET payment_total = 75.87,payment_date= due_date
+		WHERE client_id in (1,5); -- also we can update multiple row with condition
+
+-- * excercise give 50 points extra customers thus who born before 190-01-01
+
+USE sql_store;
+
+UPDATE customers SET points=points+50 WHERE birth_date <'1990-01-01'
+
+
+-- using sub querise in update
+
+USE sql_invoicing;
+UPDATE invoices SET payment_total = 85.28,payment_date = due_date
+		WHERE client_id=
+          (SELECT client_id 
+            FROM clients 
+           WHERE name='Myworks')
+
+USE sql_invoicing;
+UPDATE invoices SET payment_total = invoice_total * 0.5,payment_date = due_date
+		WHERE client_id=4
+                           (SELECT client_id 
+                                    FROM clients 
+                                      WHERE state in ('CA','NY')) -- FOR multiple values
+
+--- ******* WHEN we have to update a query we must have to see them first then should update the statement
+
+
+-- excercise 
+        
+            UPDATE orders SET comments = 'Golden Customers'
+		WHERE customer_id IN
+							(SELECT customer_id FROM customers WHERE points>3000);
+
+
+-- **** row Deletion 
+
+DELETE FROM invoices
+	WHERE client_id=2;
+
+
+DELETE FROM invoices
+	WHERE client_id= (SELECT * FROM clients WHERE name = 'Myworks')-- not working
+
+--- **** DELETE FROM invoices
+    DELETE FROM invoices
+	WHERE invoice_id=1 
+
+-- **** Restore Database
+
+
+open the same script again
 
 
 
