@@ -2,8 +2,20 @@
 sudo service mysql status
 sudo service mysql start
 sudo service mysql stop
+(enabe and disable auto startup)
+systemctl list-unit-files '*mariadb*' '*mysql*' (for status)
+sudo systemctl disable mysql (for disable)
+sudo systemctl disable mysql (for enable)
 
 *xampp
 sudo /opt/lampp/lampp start
 sudo /opt/lampp/lampp stop
 sudo /opt/lampp/lampp restart
+
+**sass
+npm run compile:sass
+
+**git
+git config --global user.name 
+git config --global user.email 
+git commit -m "Commit message"
